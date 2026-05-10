@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Run JBriscola",
+            "request": "launch",
+            "mainClass": "it.edo.jbriscola.App",
+            "projectName": "jbriscola"
+        }
+    ]
+}

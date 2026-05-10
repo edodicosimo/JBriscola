@@ -1,0 +1,226 @@
+@startuml briscola
+package model {
+    class Card {
+        - rank : Rank
+        - suit : Suit
+        + Card(rank : Rank, suit : Suit)
+        + getRank() : Rank
+        + getSuit() : Suit
+        + getPoints() : int
+        + toString() : String
+    }
+
+    class Deck {
+        - cards : List<Card>
+        + Deck()
+        - initializeDeck() : void
+        + shuffle() : void
+        + drawCard() : Card
+        + getSize() : int
+        + isEmpty() : boolean
+    }
+
+    enum Suit {
+        BASTONI
+        COPPE
+        DENARI
+        SPADE
+    }
+
+    enum Rank {
+        ASSO
+        TRE
+        RE
+        CAVALLO
+        FANTE
+        SETTE
+        SEI
+        CINQUE
+        QUATTRO
+        DUE
+        - points : int
+        - strength : int
+        + getPoints() : int
+        + getStrength() : int
+    }
+
+    interface GameRules {
+        + solveTable(table : Table, trumpSuit : Suit) : Player
+        + computeScore(cards : List<Card>) : int
+        + moveIsLegal(table : Table, cardPlayed : Card, player : Player) : boolean
+    }
+
+    class BriscolaRules implements GameRules {
+    }
+
+    class Game {
+        - rules : GameRules
+        - numberOfPlayers : int
+        - players : List<Player>
+        - teams : Map<Team, List<Player>>
+        - deck : Deck
+        - table : Table
+        - briscolaCard : Card
+        - trumpSuit : Suit
+        - currentPlayer : int
+        - currentPhase : Phase
+        - observers : List<GameObserver>
+        --
+        + Game(rules : GameRules, numberOfPlayers : int)
+        + initializeGame() : void
+        + dealInitialCards() : void
+        + revealBriscola() : void
+        + dealCard(player : Player) : void
+        + drawAfterTrick(winner : Player) : void
+        + changePhase(phase : Phase) : void
+        + askPlayerForCard(player : Player) : Card
+        + playCard(player : Player, card : Card) : void
+        + addCardToTable(player : Player, card : Card) : void
+        + solveTable(table : Table) : Player
+        + addCardsToTeamPile(table : Table, team : Team) : void
+        + updatePlayerOrder(winner : Player) : void
+        + computeScore(team : Team) : int
+        + computeWinningTeam() : Team
+        + isGameOver() : boolean
+        + addObserver(o : GameObserver) : void
+        + removeObserver(o : GameObserver) : void
+        + notifyObservers() : void
+    }
+
+    enum Phase {
+        INITIALIZATION
+        DEALING
+        TURN
+        WAIT_HUMAN_PLAY
+        DRAWING
+        ENDGAME
+    }
+
+    class Hand {
+        - cards : List<Card>
+        --
+        + Hand()
+        + addCard(card : Card) : void
+        + removeCard(card : Card) : boolean
+        + contains(card : Card) : boolean
+        + sortHand() : void
+        + isEmpty() : boolean
+        + getCards() : List<Card>
+    }
+
+    class Table {
+        - currentCards : Map<Player, Card>
+        --
+        + addCard(player : Player, card : Card) : void
+        + getPlayedCards() : Map<Player, Card>
+        + getFirstPlayer() : Player
+        + getFirstCard() : Card
+        + getTotalPointsOnTable() : int
+        + clear() : void
+        + isComplete(numberOfPlayers : int) : boolean
+    }
+
+    class Team {
+        - id : int
+        - pile : List<Card>
+        --
+        + Team(id : int)
+        + addCardsToPile(cards : List<Card>) : void
+        + getPile() : List<Card>
+        + getScore() : int
+    }
+
+    abstract class Player {
+        - nickname : String
+        - hand : Hand
+        - team : Team
+        --
+        + Player(nickname : String, team : Team)
+        + receiveCard(card : Card) : void
+        + {abstract} playTurn(table : Table, trumpSuit : Suit) : Card
+        # performPlay(card : Card) : void
+        + getHand() : Hand
+        + getTeam() : Team
+        + getNickname() : String
+    }
+
+    class HumanPlayer extends Player {
+        + HumanPlayer(nickname : String, team : Team)
+        + playTurn(table : Table, trumpSuit : Suit) : Card
+    }
+
+    class AIPlayer extends Player {
+        - strategy : AiStrategy
+        --
+        + AIPlayer(nickname : String, team : Team, strategy : AiStrategy)
+        + playTurn(table : Table, trumpSuit : Suit) : Card
+        + setStrategy(strategy : AiStrategy) : void
+    }
+
+    interface AiStrategy {
+        + chooseCard(hand : Hand, table : Table, trumpSuit : Suit) : Card
+    }
+
+    class UserProfile {
+        - nickname : String
+        - avatarPath : String
+        - gamesPlayed : int
+        - wins : int
+        - losses : int
+        - level : int
+        --
+        + UserProfile(nickname : String, avatarPath : String)
+        + addWin() : void
+        + addLoss() : void
+        - updateLevel() : void
+    }
+
+    interface GameObserver {
+        + onGameChanged(game : Game) : void
+    }
+
+    Game --o GameRules
+    Game --* Team
+    Game --* Deck
+    Game --* Table
+    Game --o Card : briscolaCard
+    Game --* "2..4" Player
+    Game --* Phase
+    Player --o Team
+    Player --* Hand
+    AIPlayer --* AiStrategy
+    Deck --o Card
+    Table --o Card
+    Hand --o Card
+    Team --o Card
+    Card --> Suit
+    Card --> Rank
+    Game --o GameObserver
+}
+
+package controller {
+    class GameController {
+        - game : Game
+        - view : GameView
+        --
+        + GameController(game : Game, view : GameView)
+        + startGame() : void
+        + handleCardSelection(player : Player, card : Card) : void
+        + nextTurn() : void
+    }
+}
+
+package view {
+    class GameView implements model.GameObserver {
+        + onGameChanged(game : Game) : void
+        + showTable(table : Table) : void
+        + showHand(hand : Hand) : void
+        + showBriscola(card : Card) : void
+        + askCardSelection(player : Player) : Card
+    }
+}
+
+GameController --* model.Game
+GameController --* view.GameView
+GameController --> model.UserProfile
+@enduml
