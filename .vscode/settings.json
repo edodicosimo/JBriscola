@@ -5,5 +5,12 @@
     "java.format.settings.url": "",
     "files.exclude": {
         "**/target": true
-    }
+    },
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-25",
+            "path": "/Library/Java/JavaVirtualMachines/jdk-25.jdk/Contents/Home",
+            "default": true
+        }
+    ]
 }
