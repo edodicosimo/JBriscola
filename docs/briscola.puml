@@ -1,18 +1,21 @@
 @startuml briscola
 package model {
-    class Card {
+    class Card <<record>> {
         - rank : Rank
         - suit : Suit
-        + Card(rank : Rank, suit : Suit)
-        + getRank() : Rank
-        + getSuit() : Suit
-        + getPoints() : int
+        + rank() : Rank
+        + suit() : Suit
+        + points() : int
         + toString() : String
+    }
+
+    class EmptyDeckException {
     }
 
     class Deck {
         - cards : List<Card>
         + Deck()
+        + Deck(shuffled : boolean)
         - initializeDeck() : void
         + shuffle() : void
         + drawCard() : Card
@@ -103,9 +106,8 @@ package model {
         + addCard(card : Card) : void
         + removeCard(card : Card) : boolean
         + contains(card : Card) : boolean
-        + sortHand() : void
-        + isEmpty() : boolean
-        + getCards() : List<Card>
+        + showCards() : List<Card>
+        + getSize() : int
     }
 
     class Table {
@@ -190,6 +192,7 @@ package model {
     Player --* Hand
     AIPlayer --* AiStrategy
     Deck --o Card
+    Deck ..> EmptyDeckException : throws
     Table --o Card
     Hand --o Card
     Team --o Card
