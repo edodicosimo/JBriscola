@@ -24,4 +24,9 @@ public class Team {
     public void addCardsToPile(List<Card> cards){
         wonCards.addAll(cards);
     }
+
+    @Override 
+    public String toString(){
+        return "Team: " + ID;
+    }
 }
