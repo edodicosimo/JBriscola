@@ -31,6 +31,10 @@ public abstract class Player {
         hand.addCard(card);
     }
 
+    public void playCard(Table table){
+        
+    }
+
     /**
      * Returns the player's nickname.
      *
