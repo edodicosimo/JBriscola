@@ -114,12 +114,11 @@ package model {
         - currentCards : Map<Player, Card>
         --
         + addCard(player : Player, card : Card) : void
-        + getPlayedCards() : Map<Player, Card>
+        + getAllCards() : List<Card>
         + getFirstPlayer() : Player
         + getFirstCard() : Card
-        + getTotalPointsOnTable() : int
         + clear() : void
-        + isComplete(numberOfPlayers : int) : boolean
+        + howManyCards() : int
     }
 
     class Team {

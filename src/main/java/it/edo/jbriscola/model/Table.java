@@ -24,7 +24,17 @@ public class Table {
         return currentCards.keySet().iterator().next();
     }
 
+    public int howManyCards(){
+        return currentCards.size();
+    }
+
     public List<Card> getAllCards(){
         return new ArrayList<>(currentCards.values());
     }
+
+    public void clear(){
+        currentCards.clear();
+    }
+
+    
 }
