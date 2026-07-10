@@ -1,6 +1,8 @@
 package it.edo.jbriscola.model;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Table {
@@ -20,5 +22,9 @@ public class Table {
 
     public Player getFirstPlayer(){
         return currentCards.keySet().iterator().next();
+    }
+
+    public List<Card> getAllCards(){
+        return new ArrayList<>(currentCards.values());
     }
 }

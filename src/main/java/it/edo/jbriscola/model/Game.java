@@ -1,5 +1,5 @@
 package it.edo.jbriscola.model;
 
-public class Model {
+public class Game {
     
 }
