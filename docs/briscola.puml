@@ -146,7 +146,6 @@ package model {
 
     class HumanPlayer extends Player {
         + HumanPlayer(nickname : String, team : Team)
-        + playTurn(table : Table, trumpSuit : Suit) : Card
     }
 
     class AIPlayer extends Player {
