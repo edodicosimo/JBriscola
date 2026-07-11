@@ -8,7 +8,7 @@ package it.edo.jbriscola.model;
 public abstract class Player {
     private final String NICKNAME;
     private final Team team;
-    private Hand hand;
+    private final Hand hand;
 
     /**
      * Creates a player with an empty hand.
@@ -21,14 +21,6 @@ public abstract class Player {
         this.team = team;
         this.NICKNAME = nickname;
     }
-
-    /**
-     * Chooses the card to play during the current turn.
-     *
-     * @param table the table containing the cards already played in the turn
-     * @return the card chosen by the player
-     */
-    protected abstract Card chooseCard(Table table);
 
     /**
      * Adds a card to the player's hand.
@@ -51,17 +43,6 @@ public abstract class Player {
             throw new IllegalArgumentException("La carta non è in mano al giocatore");
         }
         return card;
-    }
-
-    /**
-     * Plays the player's turn by choosing and removing a card from the hand.
-     *
-     * @param table the table containing the cards already played in the turn
-     * @return the card played by the player
-     */
-    public Card playTurn(Table table){
-        Card chosenCard = chooseCard(table);
-        return playCard(chosenCard);
     }
 
     /**

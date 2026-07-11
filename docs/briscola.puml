@@ -137,9 +137,7 @@ package model {
         - team : Team
         --
         + Player(nickname : String, team : Team)
-        # {abstract} chooseCard(table : Table) : Card
         + receiveCard(card : Card) : void
-        + playTurn(table : Table) : Card
         + playCard(card : Card) : Card
         + getHand() : Hand
         + getTeam() : Team
