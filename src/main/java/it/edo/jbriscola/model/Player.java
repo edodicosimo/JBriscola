@@ -23,6 +23,14 @@ public abstract class Player {
     }
 
     /**
+     * Chooses the card to play during the current turn.
+     *
+     * @param table the table containing the cards already played in the turn
+     * @return the card chosen by the player
+     */
+    protected abstract Card chooseCard(Table table);
+
+    /**
      * Adds a card to the player's hand.
      *
      * @param card the card to receive
@@ -31,8 +39,29 @@ public abstract class Player {
         hand.addCard(card);
     }
 
-    public void playCard(Table table){
-        
+    /**
+     * Plays a card from the player's hand.
+     *
+     * @param card the card to play
+     * @return the played card
+     * @throws IllegalArgumentException if the card is not in the player's hand
+     */
+    public Card playCard(Card card){
+        if (!hand.removeCard(card)){
+            throw new IllegalArgumentException("La carta non è in mano al giocatore");
+        }
+        return card;
+    }
+
+    /**
+     * Plays the player's turn by choosing and removing a card from the hand.
+     *
+     * @param table the table containing the cards already played in the turn
+     * @return the card played by the player
+     */
+    public Card playTurn(Table table){
+        Card chosenCard = chooseCard(table);
+        return playCard(chosenCard);
     }
 
     /**
