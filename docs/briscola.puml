@@ -60,12 +60,12 @@ package model {
         - rules : GameRules
         - numberOfPlayers : int
         - players : List<Player>
-        - teams : Map<Team, List<Player>>
+        - teams : List<Team>
         - deck : Deck
         - table : Table
         - briscolaCard : Card
         - trumpSuit : Suit
-        - currentPlayer : int
+        - currentPlayer : Player
         - currentPhase : Phase
         - observers : List<GameObserver>
         --
