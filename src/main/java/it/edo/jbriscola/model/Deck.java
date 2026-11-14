@@ -79,4 +79,8 @@ public class Deck {
     public int getSize(){
         return cards.size();
     }
+    
+    public boolean add(Card c){
+        return cards.add(c);
+    }
 }

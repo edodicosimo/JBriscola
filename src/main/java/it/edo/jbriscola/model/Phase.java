@@ -5,6 +5,7 @@ public enum Phase {
     DEALING,
     TURN,
     WAIT_HUMAN_PLAY,
-    DRAWING,
-    ENDGAME
+    COLLECTINGTRICK,
+    ENDGAME,
+    ENDED
 }

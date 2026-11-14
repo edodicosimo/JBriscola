@@ -8,7 +8,7 @@ package it.edo.jbriscola.model;
 public abstract class Player {
     private final String NICKNAME;
     private final Team team;
-    private final Hand hand;
+    protected final Hand hand;
 
     /**
      * Creates a player with an empty hand.
@@ -44,6 +44,7 @@ public abstract class Player {
         }
         return card;
     }
+
 
     /**
      * Returns the player's nickname.

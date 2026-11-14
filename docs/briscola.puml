@@ -48,9 +48,8 @@ package model {
     }
 
     interface GameRules {
-        + solveTable(table : Table, trumpSuit : Suit) : Player
+        + solveTable(cards : List<Card>, trumpSuit : Suit) : Player
         + computeScore(cards : List<Card>) : int
-        + moveIsLegal(table : Table, cardPlayed : Card, player : Player) : boolean
     }
 
     class BriscolaRules implements GameRules {
@@ -67,6 +66,8 @@ package model {
         - trumpSuit : Suit
         - currentPlayer : Player
         - currentPhase : Phase
+        - currentStatus : GameStatus
+        - rules : GameRules
         - observers : List<GameObserver>
         --
         + Game(rules : GameRules, numberOfPlayers : int)
@@ -78,7 +79,6 @@ package model {
         + changePhase(phase : Phase) : void
         + askPlayerForCard(player : Player) : Card
         + playCard(player : Player, card : Card) : void
-        + addCardToTable(player : Player, card : Card) : void
         + solveTable(table : Table) : Player
         + addCardsToTeamPile(table : Table, team : Team) : void
         + updatePlayerOrder(winner : Player) : void
@@ -88,6 +88,13 @@ package model {
         + addObserver(o : GameObserver) : void
         + removeObserver(o : GameObserver) : void
         + notifyObservers() : void
+        + updateGame() : void
+        + isReady() : boolean
+    }
+
+    enum GameStatus {
+        READY
+        NOTREADY
     }
 
     enum Phase {
@@ -95,7 +102,6 @@ package model {
         DEALING
         TURN
         WAIT_HUMAN_PLAY
-        DRAWING
         ENDGAME
     }
 
@@ -119,6 +125,7 @@ package model {
         + getFirstCard() : Card
         + clear() : void
         + howManyCards() : int
+        + getPlayerByCard() : Player
     }
 
     class Team {
@@ -185,6 +192,7 @@ package model {
     Game --o Card : briscolaCard
     Game --* "2..4" Player
     Game --* Phase
+    Game --* GameStatus
     Player --o Team
     Player --* Hand
     AIPlayer --* AiStrategy
