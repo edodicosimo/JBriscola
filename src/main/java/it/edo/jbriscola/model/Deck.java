@@ -83,4 +83,8 @@ public class Deck {
     public boolean add(Card c){
         return cards.add(c);
     }
+
+    public boolean add(int index, Card c){
+        return add(index,c);
+    }
 }

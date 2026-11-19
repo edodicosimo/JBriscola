@@ -175,7 +175,7 @@ public class Game {
         try {
             this.briscolaCard = deck.drawCard();
             this.trumpSuit = briscolaCard.suit();
-            this.deck.add(briscolaCard);
+            this.deck.add(0, briscolaCard);
         } catch (EmptyDeckException e) {
             throw new IllegalStateException(
                 "Carte insufficienti per pescare la briscola",e
