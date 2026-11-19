@@ -7,7 +7,7 @@ package it.edo.jbriscola.model;
  */
 public abstract class Player {
     private final String NICKNAME;
-    private final Team team;
+    private Team team;
     protected final Hand hand;
 
     /**
@@ -71,5 +71,14 @@ public abstract class Player {
      */
     public Team getTeam() {
         return team;
+    }
+
+    /**
+     * Sets the team the player belongs to.
+     *
+     * @param team the player's new team
+     */
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }

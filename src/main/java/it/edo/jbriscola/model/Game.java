@@ -2,7 +2,9 @@ package it.edo.jbriscola.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -16,7 +18,8 @@ public class Game {
     /** The players in circular turn order, starting with the trick leader. */
     private List<Player> playerList;
     /** The two teams to which players are assigned alternately. */
-    private List<Team> teams;
+    private Team team1;
+    private Team team2;
     /** The deck from which players draw cards. */
     private Deck deck;
     /** The cards played in the current trick and their players. */
@@ -37,31 +40,86 @@ public class Game {
     private List<GameObserver> observers;
 
     /**
-     * Creates human players assigned alternately to two teams and prepares initialization.
+     * Creates a game from the players, teams and components supplied by a builder.
      *
+     * @param n the total number of players
+     * @param pList the players in turn order
+     * @param team1 the first team shared by its players
+     * @param team2 the second team shared by its players
      * @param rules the rules used for trick resolution and scoring
-     * @param playerNames the player nicknames in seating order
+     * @param deck the supplied deck
+     * @param t the supplied table
+     * @param obs the registered game observers
      */
-    public Game(GameRules rules,String...playerNames){
+    public Game(Integer n, List<Player> pList, Team team1, Team team2, GameRules rules, List<GameObserver> obs){
         this.currentStatus = GameStatus.NOTREADY;
+        this.numberOfPlayers = n;
+        this.playerList = pList;
+        this.team1 = team1;
+        this.team2 = team2;
         this.rules = rules;
-        this.numberOfPlayers = playerNames.length;
-        this.teams = List.of(
-            new Team("Team_1"),
-            new Team("Team_2")
-        );
-        this.playerList = new ArrayList<>(numberOfPlayers);
-        int i = 0;
-        for (String name : playerNames) {
-            this.playerList.add(
-                new HumanPlayer(name, this.teams.get(i % 2))
-            );
-            i++;
-        }
+        this.observers = obs;
         this.currentPhase = Phase.INITIALIZATION;
         this.currentStatus = GameStatus.READY;
     }
 
+    /**
+     * Registers an observer of game updates.
+     *
+     * @param o the observer to register
+     * @return {@code true} if the observer is added
+     */
+    public boolean addObserver(GameObserver o){
+        return observers.add(o);
+    }
+
+    /**
+     * Notifies registered observers of the current game state.
+     */
+    public void notifyObservers(){
+        for (GameObserver o : observers) {
+            o.onGameChanged(this);
+        }
+    }
+
+    /**
+     * Returns an independent snapshot of the public game data.
+     *
+     * The snapshot is available before initialization and preserves table play order.
+     * Player hands are represented only by their card counts.
+     *
+     * @return the current game snapshot
+     */
+    public GameState getState() {
+        List<PlayerState> players = new ArrayList<>();
+        Map<Player, PlayerState> playerStates = new LinkedHashMap<>();
+        for (Player p : playerList) {
+            PlayerState state = new PlayerState(
+                p.getNickname(), p.getTeam().getId(), p.getHand().getSize()
+            );
+            players.add(state);
+            playerStates.put(p, state);
+        }
+
+        Map<Card, PlayerState> tableCards = new LinkedHashMap<>();
+        if (table != null) {
+            for (Card card : table.getAllCards()) {
+                tableCards.put(card, playerStates.get(table.getPlayerByCard(card)));
+            }
+        }
+
+        List<Integer> scores = new ArrayList<>();
+        for (Team t : List.of(team1, team2)) {
+            scores.add(computeScore(t));
+        }
+
+        return new GameState(
+            currentPhase, currentStatus,
+            currentPlayer == null ? null : currentPlayer.getNickname(),
+            briscolaCard, trumpSuit, deck == null ? 0 : deck.getSize(),
+            tableCards, players, scores
+        );
+    }
 
     /**
      * Creates a shuffled deck and an empty table, deals initial hands and reveals the trump card.
@@ -241,7 +299,7 @@ public class Game {
     public Team computeWinningTeam(){
         int best = 0;
         Team winner = null;
-        for (Team t : teams) {
+        for (Team t : List.of(team1, team2)) {
             int score = computeScore(t);
             if (score > best){
                 winner = t;
@@ -273,6 +331,7 @@ public class Game {
      * turn order. Completed tricks are collected before dealing again.
      * An empty deck ends the game when all hands are empty; otherwise play continues.
      * The endgame phase marks the game as not ready, while the ended phase does nothing.
+     * Observers are notified after the phase has been processed successfully.
      */
     public void updateGame() {
         switch (currentPhase) {
@@ -319,7 +378,7 @@ public class Game {
                     if (isGameOver()){
                         currentPhase = Phase.ENDGAME;
                         currentStatus = GameStatus.READY;
-                        return;
+                        break;
                     }
                 }
                 currentPhase = Phase.TURN;
@@ -334,6 +393,7 @@ public class Game {
             case ENDED ->{
             }
         }
+        notifyObservers();
     }
 
 

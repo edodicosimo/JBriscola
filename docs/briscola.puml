@@ -10,6 +10,11 @@ package model {
     }
 
     class EmptyDeckException {
+        + EmptyDeckException(m : String, causa : Throwable)
+    }
+
+    class TurnEndedException {
+        + TurnEndedException(m : String, causa : Throwable)
     }
 
     class Deck {
@@ -21,6 +26,7 @@ package model {
         + drawCard() : Card
         + getSize() : int
         + isEmpty() : boolean
+        + add(c : Card) : boolean
     }
 
     enum Suit {
@@ -48,17 +54,19 @@ package model {
     }
 
     interface GameRules {
-        + solveTable(cards : List<Card>, trumpSuit : Suit) : Player
+        + solveTable(cards : List<Card>, trumpSuit : Suit) : Card
         + computeScore(cards : List<Card>) : int
     }
 
     class BriscolaRules implements GameRules {
+        + solveTable(cards : List<Card>, trumpSuit : Suit) : Card
+        + computeScore(cards : List<Card>) : int
     }
 
     class Game {
         - rules : GameRules
         - numberOfPlayers : int
-        - players : List<Player>
+        - playerList : List<Player>
         - teams : List<Team>
         - deck : Deck
         - table : Table
@@ -67,21 +75,23 @@ package model {
         - currentPlayer : Player
         - currentPhase : Phase
         - currentStatus : GameStatus
-        - rules : GameRules
         - observers : List<GameObserver>
         --
-        + Game(rules : GameRules, numberOfPlayers : int)
+        + Game(rules : GameRules, playerNames : String...)
         + initializeGame() : void
         + dealInitialCards() : void
         + revealBriscola() : void
         + dealCard(player : Player) : void
+        + dealCards() : void
         + drawAfterTrick(winner : Player) : void
         + changePhase(phase : Phase) : void
         + askPlayerForCard(player : Player) : Card
         + playCard(player : Player, card : Card) : void
-        + solveTable(table : Table) : Player
+        + solveTable() : void
         + addCardsToTeamPile(table : Table, team : Team) : void
         + updatePlayerOrder(winner : Player) : void
+        + updateCurrentPlayer() : void
+        + getPhase() : Phase
         + computeScore(team : Team) : int
         + computeWinningTeam() : Team
         + isGameOver() : boolean
@@ -102,7 +112,9 @@ package model {
         DEALING
         TURN
         WAIT_HUMAN_PLAY
+        COLLECTINGTRICK
         ENDGAME
+        ENDED
     }
 
     class Hand {
@@ -119,28 +131,32 @@ package model {
     class Table {
         - currentCards : Map<Player, Card>
         --
+        + Table()
         + addCard(player : Player, card : Card) : void
         + getAllCards() : List<Card>
         + getFirstPlayer() : Player
         + getFirstCard() : Card
         + clear() : void
         + howManyCards() : int
-        + getPlayerByCard() : Player
+        + getPlayerByCard(card : Card) : Player
     }
 
     class Team {
-        - id : int
-        - pile : List<Card>
+        - ID : String
+        - wonCards : List<Card>
         --
-        + Team(id : int)
+        + Team(id : String)
         + addCardsToPile(cards : List<Card>) : void
         + getPile() : List<Card>
         + getScore() : int
+        + getId() : String
+        + getWonCards() : List<Card>
+        + toString() : String
     }
 
     abstract class Player {
         - NICKNAME : String
-        - hand : Hand
+        # hand : Hand
         - team : Team
         --
         + Player(nickname : String, team : Team)
@@ -156,15 +172,20 @@ package model {
     }
 
     class AIPlayer extends Player {
-        - strategy : AiStrategy
+        - strategy : AIStrategy
         --
-        + AIPlayer(nickname : String, team : Team, strategy : AiStrategy)
+        + AIPlayer(nickname : String, team : Team, strategy : AIStrategy)
+        + playCard() : Card
         + playTurn(table : Table, trumpSuit : Suit) : Card
-        + setStrategy(strategy : AiStrategy) : void
+        + setStrategy(strategy : AIStrategy) : void
     }
 
-    interface AiStrategy {
-        + chooseCard(hand : Hand, table : Table, trumpSuit : Suit) : Card
+    interface AIStrategy {
+        + chooseCard(hand : Hand) : Card
+    }
+
+    class RandomStrategy implements AIStrategy {
+        + chooseCard(hand : Hand) : Card
     }
 
     class UserProfile {
@@ -195,7 +216,7 @@ package model {
     Game --* GameStatus
     Player --o Team
     Player --* Hand
-    AIPlayer --* AiStrategy
+    AIPlayer --* AIStrategy
     Deck --o Card
     Deck ..> EmptyDeckException : throws
     Table --o Card
@@ -207,12 +228,12 @@ package model {
 }
 
 package controller {
-    class GameController {
-        - game : Game
+    class Controller {
+        ~ game : Game
         - view : GameView
         --
-        + GameController(game : Game, view : GameView)
-        + startGame() : void
+        + Controller()
+        + startGame(rules : GameRules, playerNames : String...) : void
         + handleCardSelection(player : Player, card : Card) : void
         + nextTurn() : void
     }
@@ -228,7 +249,7 @@ package view {
     }
 }
 
-GameController --* model.Game
-GameController --* view.GameView
-GameController --> model.UserProfile
+Controller --* model.Game
+Controller --* view.GameView
+Controller --> model.UserProfile
 @enduml
