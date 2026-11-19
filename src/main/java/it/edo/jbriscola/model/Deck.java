@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
  * A full deck contains all combinations of {@link Rank} and {@link Suit}.
  */
 public class Deck {
+    /** The cards remaining in the deck, drawn from the end. */
     private final List<Card> cards;
 
     /**
@@ -33,6 +34,9 @@ public class Deck {
         this(true);
     }
 
+    /**
+     * Adds all rank and suit combinations to the deck.
+     */
     private void initializeDeck() {
         for (var suit : Suit.values()) {
             for (var rank : Rank.values()) {
@@ -80,11 +84,27 @@ public class Deck {
         return cards.size();
     }
     
+    /**
+     * Appends a card at the end from which cards are drawn.
+     *
+     * @param c the card to append
+     * @return {@code true} if the card is added
+     */
     public boolean add(Card c){
         return cards.add(c);
     }
 
-    public boolean add(int index, Card c){
-        return add(index,c);
+    /**
+     * Requests insertion of a card at the given position in the deck.
+     *
+     * The current implementation calls itself recursively and does not insert the card.
+     *
+     * @param index the insertion position, where zero is drawn last
+     * @param c the card to insert
+     * @return {@code true} if the card is added
+     * @throws IndexOutOfBoundsException if the index is outside the insertion range
+     */
+    public void add(int index, Card c){
+        this.cards.add(index,c);
     }
 }

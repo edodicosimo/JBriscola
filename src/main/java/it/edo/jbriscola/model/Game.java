@@ -14,12 +14,13 @@ import java.util.Map;
  */
 public class Game {
     /** The number of players created for the game. */
-    private int numberOfPlayers;
+    private final int numberOfPlayers;
     /** The players in circular turn order, starting with the trick leader. */
-    private List<Player> playerList;
-    /** The two teams to which players are assigned alternately. */
-    private Team team1;
-    private Team team2;
+    private final List<Player> playerList;
+    /** The first shared team. */
+    private final Team team1;
+    /** The second shared team. */
+    private final Team team2;
     /** The deck from which players draw cards. */
     private Deck deck;
     /** The cards played in the current trick and their players. */
@@ -35,9 +36,9 @@ public class Game {
     /** Whether the game can advance without waiting for input. */
     private GameStatus currentStatus;
     /** The rules used to resolve tricks and compute scores. */
-    private GameRules rules;
+    private final GameRules rules;
     /** The observers reserved for game event notifications. */
-    private List<GameObserver> observers;
+    private final List<GameObserver> observers;
 
     /**
      * Creates a game from the players, teams and components supplied by a builder.
@@ -47,8 +48,6 @@ public class Game {
      * @param team1 the first team shared by its players
      * @param team2 the second team shared by its players
      * @param rules the rules used for trick resolution and scoring
-     * @param deck the supplied deck
-     * @param t the supplied table
      * @param obs the registered game observers
      */
     public Game(Integer n, List<Player> pList, Team team1, Team team2, GameRules rules, List<GameObserver> obs){

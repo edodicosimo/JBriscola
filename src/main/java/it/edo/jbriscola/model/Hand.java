@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class Hand {
 
+    /** The cards held in insertion order. */
     private final List<Card> cards;
 
     /**

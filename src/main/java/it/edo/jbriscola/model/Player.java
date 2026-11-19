@@ -6,8 +6,11 @@ package it.edo.jbriscola.model;
  * A player is identified by a nickname and belongs to a {@link Team}.
  */
 public abstract class Player {
+    /** The player nickname. */
     private final String NICKNAME;
+    /** The team currently assigned to the player. */
     private Team team;
+    /** The cards currently held by the player. */
     protected final Hand hand;
 
     /**
