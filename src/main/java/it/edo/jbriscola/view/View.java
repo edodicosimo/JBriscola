@@ -17,18 +17,11 @@ public class View implements GameObserver {
      * @param game the game that changed
      */
     @Override
-    public void onGameChanged(Game game) {
-        updateView(game.getState());
+    public void update(Game game) {
+        this.state = game.getState(); 
     }
 
-    /**
-     * Stores the snapshot to present.
-     *
-     * @param state the latest game snapshot
-     */
-    public void updateView(GameState state) {
-        this.state = state;
-    }
+
 
     /**
      * Returns the most recent snapshot received by the view.

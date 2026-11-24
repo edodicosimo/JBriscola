@@ -13,13 +13,13 @@ public class Controller {
 
     
     public Controller(){
+        this.view = new View();
     }
 
     public void startGame(GameRules rules, int n, String[] players, String[] teams){
         var b = new GameBuilder();
         this.game = b.withNumberOfPlayers(n).withRules(rules)
             .withPlayers(players, teams).fillPlayers(new RandomStrategy()).build();
-        this.view = new View();
         game.addObserver(view);
         game.notifyObservers();
         while (game.getPhase() != Phase.ENDED && game.isReady()) { 

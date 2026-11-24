@@ -77,7 +77,7 @@ public class Game {
      */
     public void notifyObservers(){
         for (GameObserver o : observers) {
-            o.onGameChanged(this);
+            o.update(this);
         }
     }
 

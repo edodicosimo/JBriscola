@@ -9,5 +9,5 @@ public interface GameObserver {
      *
      * @param g the game whose state is available for inspection
      */
-    public abstract void onGameChanged(Game g);
+    public abstract void update(Game g);
 }
