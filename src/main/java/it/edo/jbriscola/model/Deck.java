@@ -95,13 +95,10 @@ public class Deck {
     }
 
     /**
-     * Requests insertion of a card at the given position in the deck.
-     *
-     * The current implementation calls itself recursively and does not insert the card.
+     * Inserts a card at the given position in the deck.
      *
      * @param index the insertion position, where zero is drawn last
      * @param c the card to insert
-     * @return {@code true} if the card is added
      * @throws IndexOutOfBoundsException if the index is outside the insertion range
      */
     public void add(int index, Card c){

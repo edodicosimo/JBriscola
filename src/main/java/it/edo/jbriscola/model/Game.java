@@ -42,7 +42,10 @@ public class Game {
     private final List<GameObserver> observers;
 
     /**
-     * Creates a game from the players, teams and components supplied by a builder.
+     * Creates a game ready for initialization from the supplied players, teams and rules.
+     *
+     * Player and observer lists are retained by reference. The deck and table
+     * are created when the initialization phase is processed.
      *
      * @param n the total number of players
      * @param pList the players in turn order
@@ -122,7 +125,8 @@ public class Game {
     }
 
     /**
-     * Creates a shuffled deck and an empty table, deals initial hands and reveals the trump card.
+     * Creates a shuffled deck and an empty table, arranges players if needed,
+     * deals initial hands and reveals the trump card.
      *
      * Existing player hands and team piles are not cleared.
      *
@@ -139,6 +143,13 @@ public class Game {
         revealBriscola();
     }
 
+    /**
+     * Checks whether consecutive players in the list belong to different teams.
+     *
+     * The last player is not compared with the first.
+     *
+     * @return {@code true} if no adjacent pair belongs to the same team
+     */
     public boolean playersAreMixed() {
         for (int i = 0; i < playerList.size() - 1; i++) {
             if (playerList.get(i).getTeam().equals(playerList.get(i + 1).getTeam())) {
@@ -148,6 +159,15 @@ public class Game {
         return true;
     }
 
+    /**
+     * Arranges four players by alternating the two teams, starting with the first team.
+     *
+     * Each team must supply at least two players. The relative order of the first
+     * two players within each team is preserved.
+     *
+     * @throws NullPointerException if either team has no players in the current list
+     * @throws IndexOutOfBoundsException if either team has fewer than two players
+     */
     public void mixPlayers() {
         var byTeam = playerList.stream()
             .collect(Collectors.groupingBy(Player::getTeam));
@@ -195,7 +215,8 @@ public class Game {
     }
 
     /**
-     * Draws and stores the trump card, sets the trump suit and returns the card to the deck.
+     * Draws and stores the trump card, sets the trump suit and reinserts the card
+     * at the bottom of the deck so it is drawn last.
      *
      * @throws IllegalStateException if the deck is empty
      */
@@ -294,11 +315,11 @@ public class Game {
     }
     
     /**
-     * Asks an AI player to choose and remove a card from its hand.
+     * Asks a player to choose and remove a card using its assigned strategy.
      *
-     * @param p the AI player whose card is requested
+     * @param p the player whose card is requested
      * @return the chosen and removed card
-     * @throws IllegalArgumentException if the player is not an AI player or its strategy cannot supply a valid card
+     * @throws IllegalArgumentException if the selected card is not in the player's hand
      */
     public Card askPlayerForCard(Player p) {
             return p.playCard();
@@ -352,8 +373,9 @@ public class Game {
     /**
      * Processes one step of the current phase and updates the game status.
      *
-     * Human turns wait for external input. AI turns play a card and advance the
-     * turn order. Completed tricks are collected before dealing again.
+     * Turns request a card through the current player's strategy and advance
+     * the turn order. Human strategies may block while waiting for input.
+     * Completed tricks are collected before dealing again.
      * An empty deck ends the game when all hands are empty; otherwise play continues.
      * The endgame phase marks the game as not ready, while the ended phase does nothing.
      * Observers are notified after the phase has been processed successfully.

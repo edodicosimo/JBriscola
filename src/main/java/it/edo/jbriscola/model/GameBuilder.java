@@ -67,6 +67,7 @@ public class GameBuilder {
      *
      * @param name the player nickname
      * @param team the team selector, either {@code "1"} or {@code "2"}
+     * @param humanStrategy the strategy used to request human card selections
      * @throws IllegalArgumentException if the team selector is null or invalid
      */
     public void addHumanPlayer(String name, String team, HumanStrategy humanStrategy) {
@@ -88,6 +89,7 @@ public class GameBuilder {
      *
      * @param playernames the player nicknames
      * @param teams the corresponding team selectors, either {@code "1"} or {@code "2"}
+     * @param humanStrategy the strategy shared by the added human players
      * @return this builder
      * @throws IllegalArgumentException if array lengths differ or a team selector is invalid
      */

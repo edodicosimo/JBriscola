@@ -5,7 +5,7 @@ import it.edo.jbriscola.model.GameObserver;
 import it.edo.jbriscola.model.Hand;
 
 /**
- * Receives game snapshots for presentation.
+ * Receives game notifications and requests human card selections.
  */
 public interface  View extends GameObserver{
     /**

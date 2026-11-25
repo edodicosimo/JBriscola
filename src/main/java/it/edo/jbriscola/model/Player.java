@@ -6,6 +6,7 @@ package it.edo.jbriscola.model;
  * A player is identified by a nickname and belongs to a {@link Team}.
  */
 public class Player {
+    /** The strategy used to choose cards for this player. */
     private final PlayerStrategy strategy;
     /** The player nickname. */
     private final String NICKNAME;
@@ -15,10 +16,11 @@ public class Player {
     protected final Hand hand;
 
     /**
-     * Creates a player with an empty hand.
+     * Creates a player with an empty hand and the given card selection strategy.
      *
      * @param nickname the nickname of the player
      * @param team the team the player belongs to
+     * @param s the strategy used to choose cards
      */
     public Player(String nickname, Team team, PlayerStrategy s){
         this.hand = new Hand();
@@ -90,6 +92,8 @@ public class Player {
 
     /**
      * Sets the team the player belongs to.
+     *
+     * Registered player lists in the old and new teams are not updated.
      *
      * @param team the player's new team
      */

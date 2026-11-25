@@ -7,20 +7,38 @@ import it.edo.jbriscola.model.GameState;
 import it.edo.jbriscola.model.Card;
 import it.edo.jbriscola.model.Hand;
 
+/**
+ * Displays game snapshots and reads human card selections from the console.
+ */
 public class ConsoleView implements View{
+    /** The most recent snapshot received from the game. */
     private GameState state;
+    /** The scanner bound to standard input when the view is constructed. */
     private final Scanner scanner;
 
+    /**
+     * Creates a console view that reads from {@link System#in}.
+     */
     public ConsoleView(){
         this.scanner = new Scanner(System.in);
     }
     
+    /**
+     * Stores and prints a snapshot of the game after a notification.
+     *
+     * @param game the game whose state is displayed
+     */
     @Override
     public void update(Game game) {
         this.state = game.getState(); 
         printState();
     }
     
+    /**
+     * Returns the latest snapshot received from the game.
+     *
+     * @return the latest snapshot, or {@code null} before the first update
+     */
     public GameState getState() {
         return state;
     }

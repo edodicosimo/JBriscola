@@ -91,6 +91,5 @@ public class Table {
         }
         throw new IllegalArgumentException("La carta non è sul tavolo");
     }
-
     
 }
