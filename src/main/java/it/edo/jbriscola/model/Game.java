@@ -311,7 +311,7 @@ public class Game {
      * @return the team's total score
      */
     public int computeScore(Team t){
-        return rules.computeScore(t.getWonCards());
+        return rules.computeScore(t.getPile());
     }
 
     /**
@@ -411,10 +411,5 @@ public class Game {
         }
         notifyObservers();
     }
-
-
-
-
-
 
 }

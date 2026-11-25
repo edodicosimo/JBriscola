@@ -41,7 +41,7 @@ public class Team {
      *
      * @return the cards won by the team
      */
-    public List<Card> getWonCards() {
+    public List<Card> getPile() {
         return Collections.unmodifiableList(wonCards);
     }
 

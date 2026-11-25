@@ -27,6 +27,7 @@ package model {
         + getSize() : int
         + isEmpty() : boolean
         + add(c : Card) : boolean
+        + add(index : int, c : Card) : void
     }
 
     enum Suit {
@@ -67,7 +68,8 @@ package model {
         - rules : GameRules
         - numberOfPlayers : int
         - playerList : List<Player>
-        - teams : List<Team>
+        - team1 : Team
+        - team2 : Team
         - deck : Deck
         - table : Table
         - briscolaCard : Card
@@ -77,7 +79,10 @@ package model {
         - currentStatus : GameStatus
         - observers : List<GameObserver>
         --
-        + Game(rules : GameRules, playerNames : String...)
+        + Game(n : Integer, pList : List<Player>, team1 : Team, team2 : Team, rules : GameRules, obs : List<GameObserver>)
+        + getState() : GameState
+        + playersAreMixed() : boolean
+        + mixPlayers() : void
         + initializeGame() : void
         + dealInitialCards() : void
         + revealBriscola() : void
@@ -95,11 +100,51 @@ package model {
         + computeScore(team : Team) : int
         + computeWinningTeam() : Team
         + isGameOver() : boolean
-        + addObserver(o : GameObserver) : void
+        + addObserver(o : GameObserver) : boolean
         + removeObserver(o : GameObserver) : void
         + notifyObservers() : void
         + updateGame() : void
         + isReady() : boolean
+    }
+
+    class GameBuilder {
+        - numberOfPlayers : int
+        - playersPerTeam : int
+        - playerList : List<Player>
+        - team1 : Team
+        - team2 : Team
+        - rules : GameRules
+        - observers : List<GameObserver>
+        --
+        + withRules(rules : GameRules) : GameBuilder
+        + withObservers(observers : List<GameObserver>) : GameBuilder
+        + withNumberOfPlayers(n : int) : GameBuilder
+        + addHumanPlayer(name : String, team : String, humanStrategy : HumanStrategy) : void
+        + withPlayers(playernames : String[], teams : String[], humanStrategy : HumanStrategy) : GameBuilder
+        + fillPlayers(s : PlayerStrategy) : GameBuilder
+        + build() : Game
+    }
+
+    class GameState <<record>> {
+        - phase : Phase
+        - status : GameStatus
+        - currentPlayerName : String
+        - briscolaCard : Card
+        - trumpSuit : Suit
+        - remainingCards : int
+        - tableCards : Map<Card, PlayerState>
+        - players : List<PlayerState>
+        - teamScores : List<Integer>
+        --
+        + phase() : Phase
+        + status() : GameStatus
+        + currentPlayerName() : String
+        + briscolaCard() : Card
+        + trumpSuit() : Suit
+        + remainingCards() : int
+        + tableCards() : Map<Card, PlayerState>
+        + players() : List<PlayerState>
+        + teamScores() : List<Integer>
     }
 
     enum GameStatus {
@@ -111,7 +156,6 @@ package model {
         INITIALIZATION
         DEALING
         TURN
-        WAIT_HUMAN_PLAY
         COLLECTINGTRICK
         ENDGAME
         ENDED
@@ -144,9 +188,14 @@ package model {
     class Team {
         - ID : String
         - wonCards : List<Card>
+        - playersList : List<Player>
         --
         + Team(id : String)
         + addCardsToPile(cards : List<Card>) : void
+        + addPlayer(p : Player) : void
+        + size() : int
+        + equals(obj : Object) : boolean
+        + hashCode() : int
         + getPile() : List<Card>
         + getScore() : int
         + getId() : String
@@ -154,37 +203,34 @@ package model {
         + toString() : String
     }
 
-    abstract class Player {
+    class Player {
+        - strategy : PlayerStrategy
         - NICKNAME : String
         # hand : Hand
         - team : Team
         --
-        + Player(nickname : String, team : Team)
+        + Player(nickname : String, team : Team, s : PlayerStrategy)
         + receiveCard(card : Card) : void
         + playCard(card : Card) : Card
+        + playCard() : Card
+        + setTeam(team : Team) : void
         + getHand() : Hand
         + getTeam() : Team
         + getNickname() : String
     }
 
-    class HumanPlayer extends Player {
-        + HumanPlayer(nickname : String, team : Team)
-    }
-
-    class AIPlayer extends Player {
-        - strategy : AIStrategy
+    class HumanStrategy implements PlayerStrategy {
+        - view : View
         --
-        + AIPlayer(nickname : String, team : Team, strategy : AIStrategy)
-        + playCard() : Card
-        + playTurn(table : Table, trumpSuit : Suit) : Card
-        + setStrategy(strategy : AIStrategy) : void
+        + HumanStrategy(v : View)
+        + chooseCard(h : Hand) : Card
     }
 
-    interface AIStrategy {
+    interface PlayerStrategy {
         + chooseCard(hand : Hand) : Card
     }
 
-    class RandomStrategy implements AIStrategy {
+    class RandomStrategy implements PlayerStrategy {
         + chooseCard(hand : Hand) : Card
     }
 
@@ -203,7 +249,7 @@ package model {
     }
 
     interface GameObserver {
-        + onGameChanged(game : Game) : void
+        + update(game : Game) : void
     }
 
     Game --o GameRules
@@ -216,7 +262,21 @@ package model {
     Game --* GameStatus
     Player --o Team
     Player --* Hand
-    AIPlayer --* AIStrategy
+    Player --o PlayerStrategy
+    HumanStrategy --> view.View
+    GameBuilder ..> Game : creates
+    GameBuilder --> Team
+    GameBuilder --> Player
+    GameBuilder --> GameRules
+    GameBuilder --> GameObserver
+    GameBuilder ..> HumanStrategy
+    GameBuilder ..> PlayerStrategy
+    Game ..> GameState
+    GameState --> Phase
+    GameState --> GameStatus
+    GameState --> Suit
+    GameState --> Card
+    GameState --> PlayerState
     Deck --o Card
     Deck ..> EmptyDeckException : throws
     Table --o Card
@@ -230,26 +290,37 @@ package model {
 package controller {
     class Controller {
         ~ game : Game
-        - view : GameView
+        ~ view : View
         --
         + Controller()
-        + startGame(rules : GameRules, playerNames : String...) : void
-        + handleCardSelection(player : Player, card : Card) : void
-        + nextTurn() : void
+        + startGame(rules : GameRules, n : int, players : String[], teams : String[]) : void
     }
 }
 
 package view {
-    class GameView implements model.GameObserver {
-        + onGameChanged(game : Game) : void
-        + showTable(table : Table) : void
-        + showHand(hand : Hand) : void
-        + showBriscola(card : Card) : void
-        + askCardSelection(player : Player) : Card
+    interface View extends model.GameObserver {
+        + askPlayerForCard(hand : Hand) : Card
+    }
+
+    class ConsoleView implements View {
+        - state : GameState
+        - scanner : Scanner
+        --
+        + ConsoleView()
+        + update(game : Game) : void
+        + getState() : GameState
+        + askPlayerForCard(hand : Hand) : Card
+        + printState() : void
     }
 }
 
 Controller --* model.Game
-Controller --* view.GameView
+Controller --o view.View
+Controller ..> model.GameBuilder
+Controller ..> model.HumanStrategy
+Controller ..> model.RandomStrategy
+view.ConsoleView --> model.GameState
+view.View ..> model.Hand
+view.View ..> model.Card
 Controller --> model.UserProfile
 @enduml
