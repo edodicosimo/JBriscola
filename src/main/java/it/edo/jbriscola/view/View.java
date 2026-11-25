@@ -1,34 +1,18 @@
 package it.edo.jbriscola.view;
 
-import it.edo.jbriscola.model.Game;
+import it.edo.jbriscola.model.Card;
 import it.edo.jbriscola.model.GameObserver;
-import it.edo.jbriscola.model.GameState;
+import it.edo.jbriscola.model.Hand;
 
 /**
  * Receives game snapshots for presentation.
  */
-public class View implements GameObserver {
-    /** The most recent game snapshot received by the view. */
-    private GameState state;
-
+public interface  View extends GameObserver{
     /**
-     * Updates the view after a game notification.
+     * Requests a card selection without removing the card from the hand.
      *
-     * @param game the game that changed
+     * @param hand the hand to choose from
+     * @return the selected card
      */
-    @Override
-    public void update(Game game) {
-        this.state = game.getState(); 
-    }
-
-
-
-    /**
-     * Returns the most recent snapshot received by the view.
-     *
-     * @return the latest snapshot, or {@code null} before the first update
-     */
-    public GameState getState() {
-        return state;
-    }
+    public abstract Card askPlayerForCard(Hand hand);
 }

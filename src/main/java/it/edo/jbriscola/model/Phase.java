@@ -10,8 +10,6 @@ public enum Phase {
     DEALING,
     /** Processes the current player's turn. */
     TURN,
-    /** Waits for a human card selection. */
-    WAIT_HUMAN_PLAY,
     /** Resolves and collects the played cards. */
     COLLECTINGTRICK,
     /** Stops automatic advancement at the end of the game. */

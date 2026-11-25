@@ -1,11 +1,19 @@
 package it.edo.jbriscola.view;
 
-import it.edo.jbriscola.model.Game;
-import it.edo.jbriscola.model.GameObserver;
-import it.edo.jbriscola.model.GameState;
+import java.util.Scanner;
 
-public class ConsoleView implements GameObserver{
+import it.edo.jbriscola.model.Game;
+import it.edo.jbriscola.model.GameState;
+import it.edo.jbriscola.model.Card;
+import it.edo.jbriscola.model.Hand;
+
+public class ConsoleView implements View{
     private GameState state;
+    private final Scanner scanner;
+
+    public ConsoleView(){
+        this.scanner = new Scanner(System.in);
+    }
     
     @Override
     public void update(Game game) {
@@ -15,6 +23,47 @@ public class ConsoleView implements GameObserver{
     
     public GameState getState() {
         return state;
+    }
+
+    /**
+     * Displays the hand and requests a card by its one-based position.
+     *
+     * Invalid input is rejected until a valid selection is entered.
+     * The selected card remains in the hand.
+     *
+     * @param hand the nonempty hand to choose from
+     * @return the selected card
+     * @throws IllegalArgumentException if the hand is empty
+     * @throws IllegalStateException if console input ends before a valid selection
+     */
+    @Override
+    public Card askPlayerForCard(Hand hand){
+        var cards = hand.showCards();
+        if (cards.isEmpty()) {
+            throw new IllegalArgumentException("La mano è vuota");
+        }
+
+        System.out.println("Scegli una carta dalla tua mano:");
+        for (int i = 0; i < cards.size(); i++) {
+            System.out.printf("  %d) %s%n", i + 1, cards.get(i));
+        }
+
+        while (true) {
+            System.out.printf("Inserisci un numero da 1 a %d: ", cards.size());
+            if (!scanner.hasNextLine()) {
+                throw new IllegalStateException("Input terminato prima della scelta della carta");
+            }
+            String input = scanner.nextLine().trim();
+            try {
+                int choice = Integer.parseInt(input);
+                if (choice >= 1 && choice <= cards.size()) {
+                    return cards.get(choice - 1);
+                }
+            } catch (NumberFormatException e) {
+                // Read another line after a nonnumeric selection.
+            }
+            System.out.println("Scelta non valida. Riprova.");
+        }
     }
 
     /**

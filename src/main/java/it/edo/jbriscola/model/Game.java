@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -16,7 +17,7 @@ public class Game {
     /** The number of players created for the game. */
     private final int numberOfPlayers;
     /** The players in circular turn order, starting with the trick leader. */
-    private final List<Player> playerList;
+    private List<Player> playerList;
     /** The first shared team. */
     private final Team team1;
     /** The second shared team. */
@@ -130,8 +131,36 @@ public class Game {
     public void initializeGame(){
         this.deck = new Deck(true);
         this.table = new Table();
+        this.deck.shuffle();
+        if (!playersAreMixed()){
+            mixPlayers();
+        }
         dealInitialCards();
         revealBriscola();
+    }
+
+    public boolean playersAreMixed() {
+        for (int i = 0; i < playerList.size() - 1; i++) {
+            if (playerList.get(i).getTeam().equals(playerList.get(i + 1).getTeam())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void mixPlayers() {
+        var byTeam = playerList.stream()
+            .collect(Collectors.groupingBy(Player::getTeam));
+
+        var t1 = byTeam.get(team1);
+        var t2 = byTeam.get(team2);
+
+        this.playerList = new ArrayList<>(List.of(
+            t1.get(0),
+            t2.get(0),
+            t1.get(1),
+            t2.get(1)
+        ));
     }
 
     /**
@@ -272,10 +301,7 @@ public class Game {
      * @throws IllegalArgumentException if the player is not an AI player or its strategy cannot supply a valid card
      */
     public Card askPlayerForCard(Player p) {
-        if (p instanceof AIPlayer aiPlayer) {
-            return aiPlayer.playCard();
-        }
-        throw new IllegalArgumentException("Il giocatore deve essere un AIPlayer");
+            return p.playCard();
     }
 
     /**
@@ -343,9 +369,6 @@ public class Game {
 
             case TURN -> {
                 currentStatus = GameStatus.NOTREADY;
-                if (currentPlayer instanceof HumanPlayer) {
-                    currentPhase = Phase.WAIT_HUMAN_PLAY;
-                } else {
                     Card selectedCard = askPlayerForCard(currentPlayer);
                     playCard(currentPlayer, selectedCard);
                     try {
@@ -354,12 +377,6 @@ public class Game {
                         currentPhase = Phase.COLLECTINGTRICK;
                     }
                     currentStatus = GameStatus.READY;
-                }
-            }
-
-            case WAIT_HUMAN_PLAY -> {
-                // The controller submits the chosen card separately.
-                currentStatus = GameStatus.NOTREADY;
             }
 
             case COLLECTINGTRICK -> {

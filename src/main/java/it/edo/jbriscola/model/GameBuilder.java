@@ -69,7 +69,7 @@ public class GameBuilder {
      * @param team the team selector, either {@code "1"} or {@code "2"}
      * @throws IllegalArgumentException if the team selector is null or invalid
      */
-    public void addHumanPlayer(String name, String team) {
+    public void addHumanPlayer(String name, String team, HumanStrategy humanStrategy) {
         if (team == null) {
             throw new IllegalArgumentException("Il team non può essere null");
         }
@@ -78,7 +78,7 @@ public class GameBuilder {
             case "2" -> team2;
             default -> throw new IllegalArgumentException("Il team deve essere 1 o 2");
         };
-        Player p = new HumanPlayer(name, selectedTeam);
+        Player p = new Player(name, selectedTeam, humanStrategy);
         selectedTeam.addPlayer(p);
         this.playerList.add(p);
     }
@@ -91,13 +91,13 @@ public class GameBuilder {
      * @return this builder
      * @throws IllegalArgumentException if array lengths differ or a team selector is invalid
      */
-    public GameBuilder withPlayers(String[] playernames, String[] teams){
+    public GameBuilder withPlayers(String[] playernames, String[] teams, HumanStrategy humanStrategy){
         if (playernames.length != teams.length) {
             throw new IllegalArgumentException("Numero di giocatori ≠ numero di teams");
         }
         var n = teams.length;
         for (int i = 0; i < n; i++){
-            this.addHumanPlayer(playernames[i], teams[i]);      
+            this.addHumanPlayer(playernames[i], teams[i], humanStrategy);      
         }
         return this;
     }
@@ -111,14 +111,14 @@ public class GameBuilder {
      * @return this builder
      * @throws ArrayIndexOutOfBoundsException if more than four AI players are needed
      */
-    public GameBuilder fillPlayers(AIStrategy s){
+    public GameBuilder fillPlayers(PlayerStrategy s){
         String[] names = {"Giovanni","Luca","Marco", "Matteo"};
         int missingt1Players = playersPerTeam - team1.size();
         int missingt2Players = playersPerTeam - team2.size();
         int i = 0;
         while (missingt1Players > 0){
             String name = names[i];
-            Player p = new AIPlayer(name, team1, s);
+            Player p = new Player(name, team1, s);
             team1.addPlayer(p);
             this.playerList.add(p);
             i ++;
@@ -126,7 +126,7 @@ public class GameBuilder {
         }
         while (missingt2Players > 0){
             String name = names[i];
-            Player p = new AIPlayer(name, team2, s);
+            Player p = new Player(name, team2, s);
             team2.addPlayer(p);
             this.playerList.add(p);
             i ++;

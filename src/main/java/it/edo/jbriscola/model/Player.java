@@ -5,7 +5,8 @@ package it.edo.jbriscola.model;
  *
  * A player is identified by a nickname and belongs to a {@link Team}.
  */
-public abstract class Player {
+public class Player {
+    private final PlayerStrategy strategy;
     /** The player nickname. */
     private final String NICKNAME;
     /** The team currently assigned to the player. */
@@ -19,10 +20,11 @@ public abstract class Player {
      * @param nickname the nickname of the player
      * @param team the team the player belongs to
      */
-    public Player(String nickname, Team team){
+    public Player(String nickname, Team team, PlayerStrategy s){
         this.hand = new Hand();
         this.team = team;
         this.NICKNAME = nickname;
+        this.strategy = s;
     }
 
     /**
@@ -48,14 +50,24 @@ public abstract class Player {
         return card;
     }
 
-
+    /**
+     * Chooses a card using the player's assigned strategy and removes it from the hand.
+     *
+     * @return the played card
+     * @throws IllegalArgumentException if the chosen card is not in the player's hand
+     */
+    public Card playCard(){
+        Card c = strategy.chooseCard(this.hand);
+        return playCard(c);
+    }
+    
     /**
      * Returns the player's nickname.
      *
      * @return the player nickname
      */
     public String getNickname() {
-        return NICKNAME;
+        return this.NICKNAME;
     }
 
     /**
@@ -64,7 +76,7 @@ public abstract class Player {
      * @return the player hand
      */
     public Hand getHand() {
-        return hand;
+        return this.hand;
     }
 
     /**
@@ -73,7 +85,7 @@ public abstract class Player {
      * @return the team the player belongs to
      */
     public Team getTeam() {
-        return team;
+        return this.team;
     }
 
     /**

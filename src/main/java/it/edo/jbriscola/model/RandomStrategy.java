@@ -5,7 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Implements a strategy that chooses a random card from a player's hand.
  */
-public class RandomStrategy implements AIStrategy {
+public class RandomStrategy implements PlayerStrategy {
     /**
      * Chooses a random card from the given hand without removing it.
      *

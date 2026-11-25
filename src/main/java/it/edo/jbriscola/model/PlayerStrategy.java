@@ -3,7 +3,7 @@ package it.edo.jbriscola.model;
 /**
  * Defines a strategy for choosing a card from a player's hand.
  */
-public interface AIStrategy {
+public interface PlayerStrategy {
     
     /**
      * Chooses a card from the given hand without removing it.
