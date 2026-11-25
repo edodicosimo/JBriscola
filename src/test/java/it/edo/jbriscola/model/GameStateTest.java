@@ -10,13 +10,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
-import it.edo.jbriscola.view.View;
+import it.edo.jbriscola.view.ConsoleView;
 
 class GameStateTest {
     private Game createGame() {
         return new GameBuilder().withNumberOfPlayers(2)
             .withRules(new BriscolaRules())
-            .withPlayers(new String[]{"Alice", "Bob"}, new String[]{"1", "2"})
+            .withPlayers(new String[]{"Alice", "Bob"}, new String[]{"1", "2"}, new HumanStrategy(new ConsoleView()))
             .build();
     }
 
@@ -43,7 +43,7 @@ class GameStateTest {
     void viewReceivesCompletedTransitionsAndOldSnapshotsStayUnchanged()
             throws EmptyDeckException {
         Game game = createGame();
-        View view = new View();
+        ConsoleView view = new ConsoleView();
         game.addObserver(view);
 
         game.updateGame();
@@ -58,10 +58,10 @@ class GameStateTest {
         game.dealCards();
         assertEquals(3, initialized.players().get(0).handSize());
         assertEquals(4, game.getState().players().get(0).handSize());
-        game.changePhase(Phase.TURN);
-        game.updateGame();
-        assertEquals(Phase.WAIT_HUMAN_PLAY, view.getState().phase());
-        assertEquals(GameStatus.NOTREADY, view.getState().status());
+        game.notifyObservers();
+        assertEquals(game.getState(), view.getState());
+        assertEquals(Phase.DEALING, view.getState().phase());
+        assertEquals(GameStatus.READY, view.getState().status());
     }
 
     @Test

@@ -8,12 +8,14 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import it.edo.jbriscola.view.ConsoleView;
+
 class GameBuilderTest {
     @Test
     void buildRejectsAnIncompletePlayerList() {
         GameBuilder builder = new GameBuilder().withNumberOfPlayers(4)
             .withRules(new BriscolaRules())
-            .withPlayers(new String[]{"Alice"}, new String[]{"1"});
+            .withPlayers(new String[]{"Alice"}, new String[]{"1"}, new HumanStrategy(new ConsoleView()));
 
         assertThrows(IllegalStateException.class, builder::build);
     }
@@ -23,7 +25,7 @@ class GameBuilderTest {
         List<Phase> phases = new ArrayList<>();
         Game game = new GameBuilder().withNumberOfPlayers(2)
             .withRules(new BriscolaRules())
-            .withPlayers(new String[]{"Alice", "Bob"}, new String[]{"1", "2"})
+            .withPlayers(new String[]{"Alice", "Bob"}, new String[]{"1", "2"}, new HumanStrategy(new ConsoleView()))
             .withObservers(List.of(g -> phases.add(g.getPhase())))
             .build();
 
